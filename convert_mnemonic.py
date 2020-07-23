@@ -1,27 +1,22 @@
-# pip3 install mnemonic pycryptodome
+# pip3 install mnemonic py-algorand-sdk
 from mnemonic import Mnemonic
-from Crypto.Hash import SHA512
-import base64
-import binascii
+from algosdk import mnemonic
+import sys, subprocess, os, base64, binascii
 
 mnemo = Mnemonic("english")
 
-# Ceci n'est pas un message subliminal :)
-words = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+if (len(sys.argv) < 2):
+    sys.exit("usage : conver_mnemonic.py 'my mnemonic phrase'")
 
-# Ledger ajoute-t-il une passphrase par défaut ? (Non mentionné dans la doc)
+words = sys.argv[1]
+
 seed = mnemo.to_seed(words, passphrase="")
 
-# TODO
+run_cmd = ["./build/src/privkey_algorand", seed.hex()]
+testRun = subprocess.run(run_cmd, stdout=subprocess.PIPE, stdin=None, cwd=os.path.dirname(os.path.realpath(__file__)), stderr=subprocess.PIPE,  bufsize=0, universal_newlines=True, timeout=100)
+privatekey = testRun.stdout.partition('\n')[0]
 
-# Convert public key to readable algorand address
-publickey = "89afdb83e3b65d9ec966e5a126a0aa41b826df9571f5bc0897efbbad8e0402f7"
+pkey_hex = binascii.unhexlify(privatekey)
+algo_mnemonic = mnemonic.from_private_key(base64.b64encode(pkey_hex))
 
-h = SHA512.new(truncate="256")
-h.update(bytes(publickey, 'utf-8'))
-
-res = h.digest()
-tmp = binascii.unhexlify(publickey) + res[-4:]
-
-# Python use RFC3548 and padding giving the wrong result
-address = base64.b32encode(tmp)
+print(algo_mnemonic)
