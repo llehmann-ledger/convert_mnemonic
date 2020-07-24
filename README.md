@@ -15,4 +15,4 @@ then :
 
 ## Usage :
 
-`python3 conver_mnemonic.py 'my ledger mnemonic here'`
+`python3 convert_mnemonic.py 'my ledger mnemonic here'`
