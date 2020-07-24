@@ -12,13 +12,13 @@ uint8_t publicKey[32];
 cx_ecfp_private_key_t privateKey_1;
 
 void
-algorand_key_derive(void)
+algorand_key_derive(uint32_t accountId)
 {
   uint32_t bip32Path[5];
 
   bip32Path[0] = 44  | 0x80000000;
   bip32Path[1] = 283 | 0x80000000;
-  bip32Path[2] = 0   | 0x80000000;
+  bip32Path[2] = accountId | 0x80000000;
   bip32Path[3] = 0;
   bip32Path[4] = 0;
   sys_os_perso_derive_node_bip32(CX_CURVE_Ed25519, bip32Path, sizeof(bip32Path) / sizeof(bip32Path[0]), privateKeyData, NULL);
@@ -68,7 +68,7 @@ int main(int argc, char** argv)
     //for gcc unused variable warning
     argc = argc;
     setenv("SPECULOS_SEED", argv[1], 1);
-    algorand_key_derive();
+    algorand_key_derive(strtol(argv[2], NULL, 10));
     algorand_private_key(&privateKey_1);
     algorand_public_key(publicKey);
 
